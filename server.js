@@ -1,22 +1,20 @@
 const request = require('request');
 const config = require('./config.json');
+const baseUrl = "https://apigee.googleapis.com/v1/organizations/" + config.org;
 
 // STARTS HERE: Retrieve and process all Developers within the org.
 runRepeated();
 
 function runRepeated() {
     const options = {
-        url: 'https://apigee.googleapis.com/v1/organizations/bap-amer-south-demo1/developers',
+        url: baseUrl + '/developers',
         headers: {
           'Authorization': 'Bearer ' + config.token
         }
       };
             
     request(options, callbackForDevs);
-
-    setTimeout(runRepeated, 20000)
 }
-
 
 var developer = function(email) {
     this.emailAddress = email;
@@ -25,7 +23,7 @@ var developer = function(email) {
     this.deleteApps = function() {
         console.log('Deleting apps for dev:' + this.emailAddress);
         runRequest(
-            'https://apigee.googleapis.com/v1/organizations/bap-amer-south-demo1/developers/' + self.emailAddress + "/apps",
+            baseUrl + '/developers/' + self.emailAddress + "/apps",
             'GET', config.token, self.callbackForApps);
     }
 
@@ -36,7 +34,7 @@ var developer = function(email) {
         }
         console.log('Apps for ' + self.emailAddress + ': ' + body);
     
-        const devUrl = "https://apigee.googleapis.com/v1/organizations/bap-amer-south-demo1/developers/" + self.emailAddress;
+        const devUrl = baseUrl + "/developers/" + self.emailAddress;
         const apps = JSON.parse(body).app;
         if (apps) {
             console.log('Apps found for dev "' + self.emailAddress + '": ' + apps.length);
@@ -82,12 +80,21 @@ function handleDev(dev) {
 
 
 function callbackForDevs(error, response, body) {
-    if (response.statusCode != 200) {
-        console.log('Error retrieving devs: ' + error);
+    if (response.statusCode == 401) {
+        console.log('Invalid or expired token for Apigee API.');
+    } else if (response.statusCode != 200) {
+        console.log('Error retrieving devs: ' + response.statusCode);
         return;
+    } else {
+        const responseJSON = JSON.parse(body);
+        const devs = responseJSON.developer;
+        if (devs && devs.length  > 0) {
+            console.log('devs found: ' + devs.length)
+            devs.forEach(handleDev);
+            // Run again after this batch has time to process.
+            setTimeout(runRepeated, 20000);
+        } else {
+            console.log('No devs found.');
+        }
     }
-    const responseJSON = JSON.parse(body);
-    const devs = responseJSON.developer;
-    console.log('devs found: ' + devs.length)
-    devs.forEach(handleDev);
 }
