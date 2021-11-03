@@ -22,7 +22,7 @@ This can be done within the Cloud Shell under the Google Cloud Console, while lo
 
 5. Install the dependency node modules 
 ```
-npm start
+npm install
 ```
 
 # Execute the script
