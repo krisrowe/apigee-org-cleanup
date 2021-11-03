@@ -1,0 +1,23 @@
+{
+  "name": "apigee-org-cleanup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "run.js",
+  "dependencies": {
+    "request": "^2.88.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krisrowe/apigee-org-cleanup.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krisrowe/apigee-org-cleanup/issues"
+  },
+  "homepage": "https://github.com/krisrowe/apigee-org-cleanup#readme"
+}
